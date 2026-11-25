@@ -7,7 +7,7 @@ Asobo is a mobile-first web app. The first game is Reversi; more will follow.
 ## How it works
 
 - **App:** a SvelteKit single-page app, installable as a PWA, in English and Japanese.
-- **Server:** one Cloudflare Worker serves the app. Each match will run in its own room on the server, which relays moves between the two players and checks them against the rules.
+- **Server:** one Cloudflare Worker serves the app. Each online match runs in its own room (a Durable Object), which relays moves between the two players over WebSockets and checks every move against the rules.
 - **Games:** every game is a set of pure functions (`setup`, `legalMoves`, `applyMove`, `result`), so the same code draws the board in the browser and referees on the server.
 
 ## Layout
@@ -26,15 +26,16 @@ Requires Node 24 and pnpm (`corepack enable pnpm`).
 ```bash
 pnpm install
 pnpm dev        # app with hot reload at http://localhost:5173
+pnpm preview    # the Worker at http://localhost:8787; run it alongside `pnpm dev` for online play
 pnpm check      # type-check everything
 pnpm test       # run the tests
 ```
 
-To run the built app through the Worker, as it runs in production:
+To run the built app through the Worker, as it runs in production, build it first and open the Worker's address:
 
 ```bash
 pnpm build
-pnpm preview    # http://localhost:8787
+pnpm preview
 ```
 
 ## Deploying

@@ -10,5 +10,10 @@
 		"not_found_handling": "single-page-application",
 		// Only these paths reach the Worker; everything else is served as a static file.
 		"run_worker_first": ["/api/*"]
-	}
+	},
+	// One Room object per match. It holds the game and relays moves between the two players.
+	"durable_objects": {
+		"bindings": [{ "name": "ROOMS", "class_name": "Room" }]
+	},
+	"migrations": [{ "tag": "v1", "new_sqlite_classes": ["Room"] }]
 }
