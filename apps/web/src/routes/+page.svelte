@@ -15,21 +15,27 @@
 	<h2 id="games-heading">{i18n.t.games}</h2>
 	<ul class="games">
 		{#each catalogue as game (game.id)}
-			<li class="card soft">
-				<div class="board" aria-hidden="true">
-					{#each preview as cell, i (i)}
-						<span class="cell">
-							{#if cell !== '.'}<i class={cell === 'b' ? 'stone cocoa' : 'stone cream'}></i>{/if}
+			<li>
+				<svelte:element
+					this={game.href ? 'a' : 'div'}
+					class="card soft"
+					href={game.href ?? undefined}
+				>
+					<div class="board" aria-hidden="true">
+						{#each preview as cell, i (i)}
+							<span class="cell">
+								{#if cell !== '.'}<i class={cell === 'b' ? 'stone cocoa' : 'stone cream'}></i>{/if}
+							</span>
+						{/each}
+					</div>
+					<div class="text">
+						<h3>{i18n.t[game.name]}</h3>
+						<p>{i18n.t[game.blurb]}</p>
+						<span class="badge" class:soon={!game.href}>
+							{game.href ? i18n.t.play : i18n.t.comingSoon}
 						</span>
-					{/each}
-				</div>
-				<div class="text">
-					<h3>{i18n.t[game.name]}</h3>
-					<p>{i18n.t[game.blurb]}</p>
-					{#if !game.available}
-						<span class="badge">{i18n.t.comingSoon}</span>
-					{/if}
-				</div>
+					</div>
+				</svelte:element>
 			</li>
 		{/each}
 	</ul>
@@ -73,6 +79,21 @@
 		align-items: center;
 		padding: 0.875rem 0.875rem 1rem;
 		border-radius: var(--radius);
+		color: inherit;
+		text-decoration: none;
+	}
+
+	a.card {
+		transition: translate 80ms ease-out;
+	}
+
+	a.card:active {
+		translate: 0 2px;
+	}
+
+	.badge.soon {
+		background: var(--shade);
+		color: var(--muted);
 	}
 
 	.board {
@@ -88,31 +109,6 @@
 		border-radius: 0.375rem;
 		background: var(--felt);
 		box-shadow: inset 0 -2px 0 var(--felt-shade);
-	}
-
-	/* Each stone is a little mochi: a soft lip, two eyes and a blush. */
-	.stone {
-		inline-size: 84%;
-		aspect-ratio: 1;
-		border-radius: 50%;
-		box-shadow:
-			inset 0 -2px 0 rgb(0 0 0 / 0.12),
-			0 1px 2px rgb(90 60 60 / 0.3);
-		background-image:
-			radial-gradient(circle at 36% 46%, var(--eye) 0 7%, transparent 8.5%),
-			radial-gradient(circle at 64% 46%, var(--eye) 0 7%, transparent 8.5%),
-			radial-gradient(circle at 25% 61%, var(--blush) 0 9%, transparent 10.5%),
-			radial-gradient(circle at 75% 61%, var(--blush) 0 9%, transparent 10.5%);
-	}
-
-	.cocoa {
-		background-color: var(--cocoa);
-		--eye: var(--cream);
-	}
-
-	.cream {
-		background-color: var(--cream);
-		--eye: var(--cocoa);
 	}
 
 	.text {

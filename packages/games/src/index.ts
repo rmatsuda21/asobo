@@ -22,3 +22,5 @@ export interface Game<State, Move> {
 	/** The outcome, or null while the match is still in progress. */
 	result(state: State): Result | null;
 }
+
+export * from './reversi';

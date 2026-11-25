@@ -4,10 +4,10 @@ export interface CatalogueEntry {
 	id: string;
 	name: MessageKey;
 	blurb: MessageKey;
-	/** False until the game is playable; the home screen shows it as coming soon. */
-	available: boolean;
+	/** Where the game lives, or null until it is playable (shown as coming soon). */
+	href: string | null;
 }
 
 export const catalogue: CatalogueEntry[] = [
-	{ id: 'reversi', name: 'reversi', blurb: 'reversiBlurb', available: false }
+	{ id: 'reversi', name: 'reversi', blurb: 'reversiBlurb', href: '/play/reversi' }
 ];

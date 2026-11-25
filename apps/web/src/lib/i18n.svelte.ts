@@ -12,7 +12,23 @@ const messages = {
 		switchLanguage: '日本語',
 		switchLanguageLabel: '日本語に切り替える',
 		reversi: 'Reversi',
-		reversiBlurb: 'Trap their stones between yours and flip the board.'
+		reversiBlurb: 'Trap their stones between yours and flip the board.',
+		play: 'Play',
+		allGames: 'All games',
+		cocoa: 'Cocoa',
+		cream: 'Cream',
+		turnOf: '{name}’s turn',
+		passed: '{name} has no moves, so {other} goes again.',
+		wins: '{name} wins!',
+		draw: 'It’s a draw!',
+		passAndPlay: 'Pass the phone to take turns.',
+		newGame: 'New game',
+		confirmNewGame: 'Tap again to restart',
+		playAgain: 'Play again',
+		empty: 'empty',
+		canPlayHere: 'you can play here',
+		board: 'Reversi board',
+		soundEffects: 'Sound effects'
 	},
 	ja: {
 		tagline: 'ふたりで、あそぼ。',
@@ -23,7 +39,23 @@ const messages = {
 		switchLanguage: 'English',
 		switchLanguageLabel: 'Switch to English',
 		reversi: 'リバーシ',
-		reversiBlurb: '相手の石をはさんで、ひっくり返そう。'
+		reversiBlurb: '相手の石をはさんで、ひっくり返そう。',
+		play: 'あそぶ',
+		allGames: 'ゲーム一覧',
+		cocoa: 'ココア',
+		cream: 'クリーム',
+		turnOf: '{name}の番',
+		passed: '{name}は置ける場所がないので、もう一度{other}の番。',
+		wins: '{name}の勝ち！',
+		draw: '引き分け！',
+		passAndPlay: 'スマホを交代で持って遊ぼう。',
+		newGame: 'はじめから',
+		confirmNewGame: 'もう一度タップでリセット',
+		playAgain: 'もう一回',
+		empty: '空き',
+		canPlayHere: 'ここに置けます',
+		board: 'リバーシの盤',
+		soundEffects: '効果音'
 	}
 } satisfies Record<Locale, Record<string, string>>;
 
@@ -60,3 +92,8 @@ export const i18n = {
 		this.locale = locale === 'en' ? 'ja' : 'en';
 	}
 };
+
+/** Fills {placeholders} in a message. */
+export function fill(message: string, values: Record<string, string>): string {
+	return message.replace(/\{(\w+)\}/g, (_, key: string) => values[key] ?? '');
+}
