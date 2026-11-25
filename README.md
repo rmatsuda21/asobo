@@ -2,7 +2,7 @@
 
 Two-player games to play together over a link. Pick a game, send the link, and play from anywhere.
 
-Asobo is a mobile-first web app. It has Reversi, Four in a Row and Dots and Boxes so far; more will follow.
+Asobo is a mobile-first web app. It has Reversi, Four in a Row, Dots and Boxes and Mochi Flick so far; more will follow.
 
 ## How it works
 

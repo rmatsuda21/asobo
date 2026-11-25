@@ -114,6 +114,7 @@
 		winner={result ? (result.kind === 'draw' ? 'draw' : result.winner) : null}
 		confetti
 		asleep={null}
+		perspective={null}
 		onplay={play}
 	/>
 

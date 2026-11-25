@@ -1,5 +1,6 @@
 import type { GameId } from '@asobo/games';
 import { dotsUI } from './dots.ts';
+import { flickUI } from './flick.ts';
 import { fourUI } from './four.ts';
 import { reversiUI } from './reversi.ts';
 import type { GameUI } from './types.ts';
@@ -12,7 +13,8 @@ import type { GameUI } from './types.ts';
 export const registry: Record<GameId, GameUI<any, any>> = {
 	reversi: reversiUI,
 	four: fourUI,
-	dots: dotsUI
+	dots: dotsUI,
+	flick: flickUI
 };
 
 export const gameIds = Object.keys(registry) as GameId[];

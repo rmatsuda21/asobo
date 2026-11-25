@@ -78,6 +78,21 @@ export const sound = {
 		// A little confirmation when sound comes back on.
 		if (enabled) boop({ from: 880, to: 1320, length: 0.12, volume: 0.25 });
 	},
+	/** Two mochi bump: a soft thud that is louder and higher the harder they hit. */
+	bump(at = 0, force = 1) {
+		const strength = Math.min(force, 6);
+		boop({
+			from: 420 + strength * 45,
+			to: 240,
+			at,
+			length: 0.09,
+			volume: Math.min(0.5, 0.14 + strength * 0.06)
+		});
+	},
+	/** A mochi slides off the edge: a falling whistle. */
+	fall(at = 0) {
+		boop({ from: 760, to: 170, at, length: 0.34, volume: 0.3 });
+	},
 	/** A line is drawn: a short, light tick. */
 	tick() {
 		boop({ from: 940, to: 700, length: 0.07, volume: 0.3 });

@@ -38,6 +38,13 @@
 		</svg>
 		<i class="stone cocoa"></i>
 	</div>
+{:else if id === 'flick'}
+	<!-- Mochi Flick: a round tray with a few mochi on it. -->
+	<div class="thumb flick" aria-hidden="true">
+		<i class="stone cocoa" style:left="20%" style:top="50%"></i>
+		<i class="stone cocoa" style:left="52%" style:top="58%"></i>
+		<i class="stone cream" style:left="34%" style:top="16%"></i>
+	</div>
 {/if}
 
 <style>
@@ -74,6 +81,19 @@
 
 	.four .stone {
 		inline-size: 92%;
+	}
+
+	.flick {
+		position: relative;
+		display: block;
+		border-radius: 50%;
+		background: var(--felt);
+		box-shadow: inset 0 -3px 0 var(--felt-shade);
+	}
+
+	.flick .stone {
+		position: absolute;
+		inline-size: 28%;
 	}
 
 	.dots {

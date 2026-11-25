@@ -146,6 +146,7 @@
 			confetti={result !== null &&
 				(result.kind === 'draw' || seat === null || result.winner === seat)}
 			asleep={dozing ? friend : null}
+			perspective={seat}
 			onplay={(move) => {
 				buzz();
 				room?.move(move);

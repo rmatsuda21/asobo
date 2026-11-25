@@ -23,6 +23,11 @@ export interface TableProps<State, Move> {
 	confetti: boolean;
 	/** A player who is away; their pieces doze until they come back. */
 	asleep: Seat | null;
+	/**
+	 * The seat this device plays, so a board can turn to face them. Null when
+	 * both players share the device or the viewer is only watching.
+	 */
+	perspective: Seat | null;
 	onplay: (move: Move) => void;
 }
 

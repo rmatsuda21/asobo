@@ -26,13 +26,15 @@ export interface Game<State, Move> {
 export * from './reversi';
 export * from './four';
 export * from './dots';
+export * from './flick';
 
 import { dots } from './dots';
+import { flick } from './flick';
 import { four } from './four';
 import { reversi } from './reversi';
 
 /** Every game, by id. The room server referees any of these without knowing its rules. */
-export const games = { reversi, four, dots } as const;
+export const games = { reversi, four, dots, flick } as const;
 export type GameId = keyof typeof games;
 
 export function isGameId(id: string): id is GameId {
