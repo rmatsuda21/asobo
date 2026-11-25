@@ -175,3 +175,20 @@ button.soft:active {
 	background-color: var(--cream);
 	--eye: var(--cocoa);
 }
+
+/* Other moods: squeezed-shut happy eyes with a smile, and closed sleeping eyes. */
+.stone.cocoa.happy {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='25' cy='61' r='9' fill='%23f7a8b8'/%3E%3Ccircle cx='75' cy='61' r='9' fill='%23f7a8b8'/%3E%3Cpath d='M29 50L36 42L43 50M57 50L64 42L71 50M44 57Q50 65 56 57' fill='none' stroke='%23fffaf3' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+.stone.cream.happy {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='25' cy='61' r='9' fill='%23f7a8b8'/%3E%3Ccircle cx='75' cy='61' r='9' fill='%23f7a8b8'/%3E%3Cpath d='M29 50L36 42L43 50M57 50L64 42L71 50M44 57Q50 65 56 57' fill='none' stroke='%236f4d50' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+.stone.cocoa.asleep {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='25' cy='61' r='9' fill='%23f7a8b8'/%3E%3Ccircle cx='75' cy='61' r='9' fill='%23f7a8b8'/%3E%3Cpath d='M29 45Q36 53 43 45M57 45Q64 53 71 45' fill='none' stroke='%23fffaf3' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+.stone.cream.asleep {
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='25' cy='61' r='9' fill='%23f7a8b8'/%3E%3Ccircle cx='75' cy='61' r='9' fill='%23f7a8b8'/%3E%3Cpath d='M29 45Q36 53 43 45M57 45Q64 53 71 45' fill='none' stroke='%236f4d50' stroke-width='5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}

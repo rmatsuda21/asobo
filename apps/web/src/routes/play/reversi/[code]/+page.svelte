@@ -37,6 +37,18 @@
 		snapshot !== null && seat !== null && snapshot.present[seat === 0 ? 1 : 0]
 	);
 
+	// The friend's stones doze off once they have been away for a moment. The short
+	// wait keeps a quick reload on their side from flickering everyone to sleep.
+	let dozing = $state(false);
+	$effect(() => {
+		if (!(friendJoined && !friendHere) || result) {
+			dozing = false;
+			return;
+		}
+		const timer = setTimeout(() => (dozing = true), 1500);
+		return () => clearTimeout(timer);
+	});
+
 	// Only the player whose turn it is gets tappable squares.
 	const legal = $derived(
 		new Set(
@@ -114,6 +126,9 @@
 			{names}
 			{legal}
 			last={room?.last ?? null}
+			winner={result ? (result.kind === 'draw' ? 'draw' : result.winner) : null}
+			confetti={result !== null && (result.kind === 'draw' || seat === null || result.winner === seat)}
+			asleep={dozing && seat !== null ? (seat === 0 ? 1 : 0) : null}
 			onplay={(square) => room?.move(square)}
 		/>
 	{/if}

@@ -94,7 +94,17 @@
 		<SoundButton />
 	</div>
 
-	<ReversiTable board={game.board} turn={game.turn} {score} {names} {legal} {last} onplay={play} />
+	<ReversiTable
+		board={game.board}
+		turn={game.turn}
+		{score}
+		{names}
+		{legal}
+		{last}
+		winner={result ? (result.kind === 'draw' ? 'draw' : result.winner) : null}
+		confetti
+		onplay={play}
+	/>
 
 	<p class="status" class:over={result !== null} aria-live="polite">{status}</p>
 
