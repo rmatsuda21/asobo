@@ -1,0 +1,14 @@
+{
+	"name": "asobo",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"dev": "pnpm --filter @asobo/web dev",
+		"build": "pnpm --filter @asobo/web build",
+		"preview": "pnpm --filter @asobo/server dev",
+		"check": "pnpm -r check",
+		"test": "pnpm -r test",
+		"deploy": "pnpm build && pnpm --filter @asobo/server run deploy"
+	},
+	"packageManager": "pnpm@12.15.0"
+}

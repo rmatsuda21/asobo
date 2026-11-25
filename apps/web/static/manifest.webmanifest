@@ -1,0 +1,11 @@
+{
+	"name": "Asobo あそぼ",
+	"short_name": "Asobo",
+	"description": "Two-player games to play together over a link.",
+	"start_url": "/",
+	"display": "standalone",
+	"orientation": "portrait",
+	"background_color": "#fbecee",
+	"theme_color": "#fbecee",
+	"icons": [{ "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}

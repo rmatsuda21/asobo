@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Asobo">
+	<defs>
+		<clipPath id="a"><ellipse cx="196" cy="268" rx="128" ry="118" /></clipPath>
+		<clipPath id="b"><ellipse cx="322" cy="282" rx="128" ry="118" /></clipPath>
+	</defs>
+	<rect width="512" height="512" rx="116" fill="#fbecee" />
+	<!-- cocoa mochi, behind -->
+	<g clip-path="url(#a)">
+		<ellipse cx="196" cy="268" rx="128" ry="118" fill="#563a3d" />
+		<ellipse cx="196" cy="250" rx="128" ry="118" fill="#6f4d50" />
+	</g>
+	<circle cx="150" cy="252" r="11" fill="#fffaf3" />
+	<ellipse cx="118" cy="282" rx="18" ry="11" fill="#f7a8b8" opacity="0.75" />
+	<!-- strawberry mochi, in front, with a gap of background colour between them -->
+	<ellipse cx="322" cy="282" rx="142" ry="132" fill="#fbecee" />
+	<g clip-path="url(#b)">
+		<ellipse cx="322" cy="282" rx="128" ry="118" fill="#de7f96" />
+		<ellipse cx="322" cy="264" rx="128" ry="118" fill="#f29cb0" />
+	</g>
+	<ellipse cx="258" cy="298" rx="18" ry="11" fill="#fff" opacity="0.6" />
+	<ellipse cx="372" cy="298" rx="18" ry="11" fill="#fff" opacity="0.6" />
+	<circle cx="286" cy="268" r="11" fill="#6f4d50" />
+	<circle cx="344" cy="268" r="11" fill="#6f4d50" />
+	<path d="M301 288q7 10 14 0q7 10 14 0" fill="none" stroke="#6f4d50" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" />
+	<!-- the cocoa mochi's second eye and smile peek out beside its friend -->
+	<path d="M163 274q6 8 12 0" fill="none" stroke="#fffaf3" stroke-width="7" stroke-linecap="round" />
+</svg>

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 293 100" role="img" aria-label="asobo">
+	<!-- The two o's are a pair of mochi looking at each other: the two players. -->
+	<defs>
+		<clipPath id="o1"><circle cx="140" cy="62" r="25.5" /></clipPath>
+		<clipPath id="o2"><circle cx="259" cy="62" r="25.5" /></clipPath>
+	</defs>
+	<g fill="none" stroke="#6f4d50" stroke-width="13" stroke-linecap="round" stroke-linejoin="round">
+		<!-- a -->
+		<circle cx="34" cy="62" r="19" />
+		<path d="M53 43V81" />
+		<!-- s -->
+		<path d="M102 49C97 41 76 41 76 52C76 63 102 60 102 71C102 83 80 83 74 75" />
+		<!-- b -->
+		<path d="M183 20V81" />
+		<circle cx="202" cy="62" r="19" />
+	</g>
+	<!-- o: cocoa mochi, glancing right -->
+	<g clip-path="url(#o1)">
+		<circle cx="140" cy="62" r="25.5" fill="#563a3d" />
+		<circle cx="140" cy="58" r="25.5" fill="#6f4d50" />
+	</g>
+	<ellipse cx="131" cy="65.5" rx="4.2" ry="2.6" fill="#f7a8b8" opacity="0.75" />
+	<ellipse cx="155" cy="65.5" rx="4.2" ry="2.6" fill="#f7a8b8" opacity="0.75" />
+	<circle cx="137" cy="59" r="2.5" fill="#fffaf3" />
+	<circle cx="149" cy="59" r="2.5" fill="#fffaf3" />
+	<path d="M140 63.5q1.5 2.2 3 0q1.5 2.2 3 0" fill="none" stroke="#fffaf3" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+	<!-- o: strawberry mochi, glancing left -->
+	<g clip-path="url(#o2)">
+		<circle cx="259" cy="62" r="25.5" fill="#de7f96" />
+		<circle cx="259" cy="58" r="25.5" fill="#f29cb0" />
+	</g>
+	<ellipse cx="244" cy="65.5" rx="4.2" ry="2.6" fill="#fff" opacity="0.6" />
+	<ellipse cx="268" cy="65.5" rx="4.2" ry="2.6" fill="#fff" opacity="0.6" />
+	<circle cx="250" cy="59" r="2.5" fill="#6f4d50" />
+	<circle cx="262" cy="59" r="2.5" fill="#6f4d50" />
+	<path d="M253 63.5q1.5 2.2 3 0q1.5 2.2 3 0" fill="none" stroke="#6f4d50" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+</svg>
