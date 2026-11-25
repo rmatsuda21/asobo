@@ -1,9 +1,7 @@
 <script lang="ts">
-	import { catalogue } from '#lib/catalogue.ts';
+	import { gameIds, registry } from '#lib/games/registry.ts';
+	import GameThumb from '#lib/GameThumb.svelte';
 	import { i18n } from '#lib/i18n.svelte.ts';
-
-	// Opening position plus one move, as a thumbnail for the Reversi card.
-	const preview = ['....', '.wb.', '.bbb', '....'].join('');
 </script>
 
 <section class="hero">
@@ -14,28 +12,16 @@
 <section aria-labelledby="games-heading">
 	<h2 id="games-heading">{i18n.t.games}</h2>
 	<ul class="games">
-		{#each catalogue as game (game.id)}
+		{#each gameIds as id (id)}
 			<li>
-				<svelte:element
-					this={game.href ? 'a' : 'div'}
-					class="card soft"
-					href={game.href ?? undefined}
-				>
-					<div class="board" aria-hidden="true">
-						{#each preview as cell, i (i)}
-							<span class="cell">
-								{#if cell !== '.'}<i class={cell === 'b' ? 'stone cocoa' : 'stone cream'}></i>{/if}
-							</span>
-						{/each}
-					</div>
+				<a class="card soft" href="/play/{id}">
+					<GameThumb {id} />
 					<div class="text">
-						<h3>{i18n.t[game.name]}</h3>
-						<p>{i18n.t[game.blurb]}</p>
-						<span class="badge" class:soon={!game.href}>
-							{game.href ? i18n.t.play : i18n.t.comingSoon}
-						</span>
+						<h3>{i18n.t[registry[id].name]}</h3>
+						<p>{i18n.t[registry[id].blurb]}</p>
+						<span class="badge">{i18n.t.play}</span>
 					</div>
-				</svelte:element>
+				</a>
 			</li>
 		{/each}
 	</ul>
@@ -89,26 +75,6 @@
 
 	a.card:active {
 		translate: 0 2px;
-	}
-
-	.badge.soon {
-		background: var(--shade);
-		color: var(--muted);
-	}
-
-	.board {
-		display: grid;
-		grid-template: repeat(4, 1fr) / repeat(4, 1fr);
-		gap: 3px;
-		aspect-ratio: 1;
-	}
-
-	.cell {
-		display: grid;
-		place-items: center;
-		border-radius: 0.375rem;
-		background: var(--felt);
-		box-shadow: inset 0 -2px 0 var(--felt-shade);
 	}
 
 	.text {

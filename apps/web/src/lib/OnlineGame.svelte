@@ -1,26 +1,30 @@
-<script lang="ts">
-	import '#lib/game-page.css';
-	import { page } from '$app/state';
-	import { count, reversi, type ReversiState, type Seat } from '@asobo/games';
-	import { i18n } from '#lib/i18n.svelte.ts';
-	import { network } from '#lib/network.svelte.ts';
-	import ReversiTable from '#lib/ReversiTable.svelte';
-	import { buzz, playMoveSounds } from '#lib/reversi-ui.ts';
-	import { RoomConnection } from '#lib/room.svelte.ts';
-	import SoundButton from '#lib/SoundButton.svelte';
+<script lang="ts" generics="State, Move">
+	import './game-page.css';
+	import type { GameId, Seat } from '@asobo/games';
+	import type { GameUI, LastMove } from './games/types.ts';
+	import { buzz } from './haptics.ts';
+	import { i18n } from './i18n.svelte.ts';
+	import { network } from './network.svelte.ts';
+	import { RoomConnection } from './room.svelte.ts';
+	import SoundButton from './SoundButton.svelte';
 
-	const code = $derived(page.params.code ?? '');
+	/** Two players on their own devices, joined by a room on the server. */
+	let { id, ui, code }: { id: GameId; ui: GameUI<State, Move>; code: string } = $props();
 
+	let last = $state.raw<LastMove<State, Move> | null>(null);
 	/** The player who just had to pass, until the next move. */
 	let passed = $state<Seat | null>(null);
 	let copied = $state(false);
-	let room = $state.raw<RoomConnection | null>(null);
+	let room = $state.raw<RoomConnection<State, Move> | null>(null);
 
 	$effect(() => {
-		const connection = new RoomConnection(code, (move, after: ReversiState, by) => {
+		const connection = new RoomConnection<State, Move>(id, code, (before, now) => {
+			const move = { before, move: now.last!.move, by: now.last!.seat };
+			const turn = ui.rules.turn(now.state);
 			// If the turn did not change hands, the other player had no move.
-			passed = after.turn === by ? (by === 0 ? 1 : 0) : null;
-			playMoveSounds(move, { finished: after.turn === null, passed: passed !== null });
+			passed = turn === move.by ? (move.by === 0 ? 1 : 0) : null;
+			last = move;
+			ui.sounds(move, now.state, { finished: turn === null, passed: passed !== null });
 		});
 		room = connection;
 		return () => connection.close();
@@ -29,16 +33,23 @@
 	const snapshot = $derived(room?.snapshot ?? null);
 	const game = $derived(snapshot?.state ?? null);
 	const seat = $derived(snapshot?.seat ?? null);
-	const score = $derived(game ? count(game.board) : ([0, 0] as [number, number]));
-	const result = $derived(game ? reversi.result(game) : null);
-	const friendJoined = $derived(
-		snapshot !== null && seat !== null && snapshot.joined[seat === 0 ? 1 : 0]
-	);
-	const friendHere = $derived(
-		snapshot !== null && seat !== null && snapshot.present[seat === 0 ? 1 : 0]
-	);
+	const turn = $derived(game === null ? null : ui.rules.turn(game));
+	const result = $derived(game === null ? null : ui.rules.result(game));
+	const friend = $derived(seat === null ? null : seat === 0 ? 1 : 0);
+	const friendJoined = $derived(snapshot !== null && friend !== null && snapshot.joined[friend]);
+	const friendHere = $derived(snapshot !== null && friend !== null && snapshot.present[friend]);
 
-	// The friend's stones doze off once they have been away for a moment. The short
+	// A rematch starts a new round: nothing from the old game should animate.
+	let round = $state(0);
+	$effect(() => {
+		if (snapshot && snapshot.round !== round) {
+			round = snapshot.round;
+			last = null;
+			passed = null;
+		}
+	});
+
+	// The friend's pieces doze off once they have been away for a moment. The short
 	// wait keeps a quick reload on their side from flickering everyone to sleep.
 	let dozing = $state(false);
 	$effect(() => {
@@ -50,13 +61,11 @@
 		return () => clearTimeout(timer);
 	});
 
-	// Only the player whose turn it is gets tappable squares.
+	// Only the player whose turn it is gets tappable moves.
 	const legal = $derived(
-		new Set(
-			game && seat !== null && game.turn === seat && room?.status === 'open'
-				? reversi.legalMoves(game, seat)
-				: []
-		)
+		game !== null && seat !== null && turn === seat && room?.status === 'open'
+			? ui.rules.legalMoves(game, seat)
+			: []
 	);
 
 	const names = $derived.by((): [string, string] => {
@@ -68,7 +77,7 @@
 		if (room?.status === 'outdated') return i18n.t.outdated;
 		if (!network.online) return i18n.t.offline;
 		if (room?.status === 'reconnecting') return i18n.t.reconnecting;
-		if (!game) return i18n.t.connecting;
+		if (game === null) return i18n.t.connecting;
 		if (result) {
 			if (result.kind === 'draw') return i18n.t.draw;
 			if (seat === null) return '';
@@ -77,7 +86,7 @@
 		if (seat === null) return i18n.t.watching;
 		if (friendJoined && !friendHere) return i18n.t.friendAway;
 		if (passed !== null) return passed === seat ? i18n.t.youPassed : i18n.t.friendPassed;
-		return game.turn === seat ? i18n.t.yourTurn : i18n.t.friendsTurn;
+		return turn === seat ? i18n.t.yourTurn : i18n.t.friendsTurn;
 	});
 
 	async function share() {
@@ -99,12 +108,12 @@
 </script>
 
 <svelte:head>
-	<title>{i18n.t.reversi} | Asobo</title>
+	<title>{i18n.t[ui.name]} | Asobo</title>
 </svelte:head>
 
 <div class="game-page">
 	<div class="title">
-		<a class="back" href="/play/reversi"><span aria-hidden="true">‹</span> {i18n.t.reversi}</a>
+		<a class="back" href="/play/{id}"><span aria-hidden="true">‹</span> {i18n.t[ui.name]}</a>
 		<h1>{i18n.t.onlineGame}</h1>
 		<SoundButton />
 	</div>
@@ -121,20 +130,19 @@
 		</div>
 	{/if}
 
-	{#if game}
-		<ReversiTable
-			board={game.board}
-			turn={game.turn}
-			{score}
+	{#if game !== null}
+		<ui.Table
+			state={game}
 			{names}
 			{legal}
-			last={room?.last ?? null}
+			{last}
 			winner={result ? (result.kind === 'draw' ? 'draw' : result.winner) : null}
-			confetti={result !== null && (result.kind === 'draw' || seat === null || result.winner === seat)}
-			asleep={dozing && seat !== null ? (seat === 0 ? 1 : 0) : null}
-			onplay={(square) => {
+			confetti={result !== null &&
+				(result.kind === 'draw' || seat === null || result.winner === seat)}
+			asleep={dozing ? friend : null}
+			onplay={(move) => {
 				buzz();
-				room?.move(square);
+				room?.move(move);
 			}}
 		/>
 	{/if}

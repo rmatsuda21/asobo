@@ -79,8 +79,8 @@ export const sound = {
 		if (enabled) boop({ from: 880, to: 1320, length: 0.12, volume: 0.25 });
 	},
 	/** A stone lands: a soft "pon" that drops in pitch. */
-	place() {
-		boop({ from: 720, to: 300, length: 0.13, volume: 0.5 });
+	place(at = 0) {
+		boop({ from: 720, to: 300, at, length: 0.13, volume: 0.5 });
 	},
 	/** One rising note per ring of flipped stones, timed to each ring's hop. */
 	flips(delays: number[]) {

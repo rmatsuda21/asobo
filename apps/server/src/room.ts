@@ -1,5 +1,5 @@
 import { DurableObject } from 'cloudflare:workers';
-import { reversi, type ReversiState, type Seat } from '@asobo/games';
+import { games, isGameId, type Game, type Seat } from '@asobo/games';
 import { PLAYER_ID, PROTOCOL_VERSION, type ClientMessage, type RoomSnapshot } from './protocol';
 
 /** A room with no activity for this long is deleted. */
@@ -7,7 +7,7 @@ const IDLE_MS = 24 * 60 * 60 * 1000;
 const MAX_MESSAGE_LENGTH = 256;
 
 interface Stored {
-	state: ReversiState;
+	state: unknown;
 	/** The player id that owns each seat. Ids never leave the server. */
 	seats: [string | null, string | null];
 	last: RoomSnapshot['last'];
@@ -16,21 +16,27 @@ interface Stored {
 
 /** Kept on each socket so it survives the object going to sleep between messages. */
 interface Attachment {
-	playerId: string;
+	/** Which game this room plays, taken from the address the socket connected to. */
+	game: string;
+	playerId?: string;
 }
 
 /**
- * One match. The room owns the game state and is the referee: a move only
- * counts if the shared rules accept it for the seat that sent it.
+ * One match of any game. The room owns the game state and is the referee: a
+ * move only counts if that game's rules accept it for the seat that sent it.
+ * It never looks inside a state or a move; the rules do that.
  */
 export class Room extends DurableObject {
 	async fetch(request: Request): Promise<Response> {
 		if (request.headers.get('Upgrade') !== 'websocket') {
 			return new Response('Expected a WebSocket', { status: 426 });
 		}
+		// The Worker has already checked the address is /api/room/<game>/<code>.
+		const game = new URL(request.url).pathname.split('/')[3] ?? '';
 		const { 0: client, 1: server } = new WebSocketPair();
 		// The hibernation API lets the object sleep while sockets stay open, so an idle room costs nothing.
 		this.ctx.acceptWebSocket(server);
+		server.serializeAttachment({ game } satisfies Attachment);
 		return new Response(null, { status: 101, webSocket: client });
 	}
 
@@ -44,7 +50,13 @@ export class Room extends DurableObject {
 		}
 		if (typeof message !== 'object' || message === null) return;
 
-		const room = await this.load();
+		const attachment = ws.deserializeAttachment() as Attachment | null;
+		const rules = this.rules(attachment);
+		if (!attachment || !rules) {
+			ws.close(1008, 'Unknown game');
+			return;
+		}
+		const room = await this.load(rules);
 
 		if (message.type === 'hello') {
 			if (message.v !== PROTOCOL_VERSION) {
@@ -56,7 +68,7 @@ export class Room extends DurableObject {
 				ws.close(1008, 'Invalid player id');
 				return;
 			}
-			ws.serializeAttachment({ playerId: message.playerId } satisfies Attachment);
+			ws.serializeAttachment({ ...attachment, playerId: message.playerId } satisfies Attachment);
 			if (!room.seats.includes(message.playerId)) {
 				const free = room.seats.indexOf(null);
 				if (free !== -1) room.seats[free] = message.playerId;
@@ -67,18 +79,18 @@ export class Room extends DurableObject {
 
 			if (message.type === 'move') {
 				try {
-					room.state = reversi.applyMove(room.state, seat, message.move);
+					room.state = rules.applyMove(room.state, seat, message.move);
 				} catch {
 					// Not legal, or not their turn. Send the true state back so the client corrects itself.
 					this.send(ws, room);
 					return;
 				}
-				room.last = { square: message.move, seat };
+				room.last = { move: message.move, seat };
 			} else if (message.type === 'rematch') {
-				if (room.state.turn !== null) return;
+				if (rules.turn(room.state) !== null) return;
 				// Swap seats so the other player moves first this time.
 				room.seats = [room.seats[1], room.seats[0]];
-				room.state = reversi.setup();
+				room.state = rules.setup();
 				room.last = null;
 				room.round++;
 			} else {
@@ -97,7 +109,8 @@ export class Room extends DurableObject {
 		} catch {
 			// Already closed.
 		}
-		this.broadcast(await this.load(), ws);
+		const rules = this.rules(ws.deserializeAttachment() as Attachment | null);
+		if (rules) this.broadcast(await this.load(rules), ws);
 	}
 
 	async webSocketError(ws: WebSocket) {
@@ -110,10 +123,15 @@ export class Room extends DurableObject {
 		await this.ctx.storage.deleteAll();
 	}
 
-	private async load(): Promise<Stored> {
+	private rules(attachment: Attachment | null): Game<unknown, unknown> | null {
+		if (!attachment || !isGameId(attachment.game)) return null;
+		return games[attachment.game] as unknown as Game<unknown, unknown>;
+	}
+
+	private async load(rules: Game<unknown, unknown>): Promise<Stored> {
 		return (
 			(await this.ctx.storage.get<Stored>('room')) ?? {
-				state: reversi.setup(),
+				state: rules.setup(),
 				seats: [null, null],
 				last: null,
 				round: 0
@@ -123,7 +141,7 @@ export class Room extends DurableObject {
 
 	private seatOf(ws: WebSocket, room: Stored): Seat | null {
 		const attachment = ws.deserializeAttachment() as Attachment | null;
-		if (!attachment) return null;
+		if (!attachment?.playerId) return null;
 		const seat = room.seats.indexOf(attachment.playerId);
 		return seat === 0 || seat === 1 ? seat : null;
 	}

@@ -1,11 +1,10 @@
-import type { ReversiState, Seat } from '@asobo/games';
+import type { GameId } from '@asobo/games';
 import {
 	PROTOCOL_VERSION,
 	type ClientMessage,
 	type RoomSnapshot,
 	type ServerMessage
 } from '@asobo/server/protocol';
-import { moveBetween, type LastMove } from './reversi-ui.ts';
 
 const PLAYER_KEY = 'asobo:player';
 /** No look-alike characters, so a code is easy to read out loud. */
@@ -40,16 +39,15 @@ function playerId(): string {
 	}
 }
 
-export type MoveListener = (move: LastMove, after: ReversiState, by: Seat) => void;
+/** Called when a move arrives while this device is watching, with the state it replaced. */
+export type MoveListener<State, Move> = (before: State, now: RoomSnapshot<State, Move>) => void;
 
-/** A live connection to one match. It reconnects by itself until `close()` is called. */
-export class RoomConnection {
+/** A live connection to one match of any game. It reconnects by itself until `close()` is called. */
+export class RoomConnection<State, Move> {
 	/** 'outdated' means the server refused this copy of the app; it stays closed until a reload. */
 	status = $state<'connecting' | 'open' | 'reconnecting' | 'outdated'>('connecting');
 	/** Null until the room has answered. */
-	snapshot = $state.raw<RoomSnapshot | null>(null);
-	/** The move that led to the current board, for animating it. */
-	last = $state.raw<LastMove | null>(null);
+	snapshot = $state.raw<RoomSnapshot<State, Move> | null>(null);
 
 	#url: string;
 	#id = playerId();
@@ -57,11 +55,11 @@ export class RoomConnection {
 	#attempts = 0;
 	#retry: ReturnType<typeof setTimeout> | undefined;
 	#closed = false;
-	#onmove: MoveListener;
+	#onmove: MoveListener<State, Move>;
 
-	constructor(code: string, onmove: MoveListener) {
+	constructor(game: GameId, code: string, onmove: MoveListener<State, Move>) {
 		const scheme = location.protocol === 'https:' ? 'wss' : 'ws';
-		this.#url = `${scheme}://${location.host}/api/room/${code}`;
+		this.#url = `${scheme}://${location.host}/api/room/${game}/${code}`;
 		this.#onmove = onmove;
 		this.#connect();
 		// Phones drop sockets when the screen sleeps; come back as soon as the page is visible again.
@@ -69,8 +67,8 @@ export class RoomConnection {
 		window.addEventListener('online', this.#wake);
 	}
 
-	move(square: number) {
-		this.#send({ type: 'move', move: square });
+	move(move: Move) {
+		this.#send({ type: 'move', move });
 	}
 
 	rematch() {
@@ -110,7 +108,7 @@ export class RoomConnection {
 		});
 
 		socket.addEventListener('message', (event) => {
-			let message: ServerMessage;
+			let message: ServerMessage<State, Move>;
 			try {
 				message = JSON.parse(String(event.data));
 			} catch {
@@ -136,22 +134,17 @@ export class RoomConnection {
 		});
 	}
 
-	#apply(next: RoomSnapshot) {
+	#apply(next: RoomSnapshot<State, Move>) {
 		const previous = this.snapshot;
 		this.snapshot = next;
-
-		// Animate only a move that happened while we were watching: the same game, and a different board.
-		const changed =
+		// Report only a move that happened while we were watching: the same game, and a changed state.
+		if (
 			previous !== null &&
 			previous.round === next.round &&
 			next.last !== null &&
-			previous.state.board.some((cell, i) => cell !== next.state.board[i]);
-		if (changed) {
-			const move = moveBetween(previous.state.board, next.state.board, next.last!.square);
-			this.last = move;
-			this.#onmove(move, next.state, next.last!.seat);
-		} else if (previous === null || previous.round !== next.round) {
-			this.last = null;
+			JSON.stringify(previous.state) !== JSON.stringify(next.state)
+		) {
+			this.#onmove(previous.state, next);
 		}
 	}
 }
