@@ -3,8 +3,9 @@
 	import { page } from '$app/state';
 	import { count, reversi, type ReversiState, type Seat } from '@asobo/games';
 	import { i18n } from '#lib/i18n.svelte.ts';
+	import { network } from '#lib/network.svelte.ts';
 	import ReversiTable from '#lib/ReversiTable.svelte';
-	import { playMoveSounds } from '#lib/reversi-ui.ts';
+	import { buzz, playMoveSounds } from '#lib/reversi-ui.ts';
 	import { RoomConnection } from '#lib/room.svelte.ts';
 	import SoundButton from '#lib/SoundButton.svelte';
 
@@ -64,8 +65,10 @@
 	});
 
 	const status = $derived.by(() => {
-		if (!game) return i18n.t.connecting;
+		if (room?.status === 'outdated') return i18n.t.outdated;
+		if (!network.online) return i18n.t.offline;
 		if (room?.status === 'reconnecting') return i18n.t.reconnecting;
+		if (!game) return i18n.t.connecting;
 		if (result) {
 			if (result.kind === 'draw') return i18n.t.draw;
 			if (seat === null) return '';
@@ -129,14 +132,19 @@
 			winner={result ? (result.kind === 'draw' ? 'draw' : result.winner) : null}
 			confetti={result !== null && (result.kind === 'draw' || seat === null || result.winner === seat)}
 			asleep={dozing && seat !== null ? (seat === 0 ? 1 : 0) : null}
-			onplay={(square) => room?.move(square)}
+			onplay={(square) => {
+				buzz();
+				room?.move(square);
+			}}
 		/>
 	{/if}
 
 	<p class="status" class:over={result !== null} aria-live="polite">{status}</p>
 
 	<div class="actions">
-		{#if result && seat !== null}
+		{#if room?.status === 'outdated'}
+			<button class="primary soft" onclick={() => location.reload()}>{i18n.t.reload}</button>
+		{:else if result && seat !== null}
 			<button class="primary soft" onclick={() => room?.rematch()}>{i18n.t.rematch}</button>
 		{/if}
 	</div>

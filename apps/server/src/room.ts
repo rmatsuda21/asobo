@@ -1,6 +1,6 @@
 import { DurableObject } from 'cloudflare:workers';
 import { reversi, type ReversiState, type Seat } from '@asobo/games';
-import { PLAYER_ID, type ClientMessage, type RoomSnapshot } from './protocol';
+import { PLAYER_ID, PROTOCOL_VERSION, type ClientMessage, type RoomSnapshot } from './protocol';
 
 /** A room with no activity for this long is deleted. */
 const IDLE_MS = 24 * 60 * 60 * 1000;
@@ -47,6 +47,11 @@ export class Room extends DurableObject {
 		const room = await this.load();
 
 		if (message.type === 'hello') {
+			if (message.v !== PROTOCOL_VERSION) {
+				ws.send(JSON.stringify({ type: 'outdated' }));
+				ws.close(4000, 'Client is out of date');
+				return;
+			}
 			if (typeof message.playerId !== 'string' || !PLAYER_ID.test(message.playerId)) {
 				ws.close(1008, 'Invalid player id');
 				return;

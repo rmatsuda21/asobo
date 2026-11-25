@@ -6,8 +6,14 @@ export const ROOM_CODE = /^[a-hjkmnp-z2-9]{6}$/;
 /** A random id each browser makes for itself, so it can reclaim its seat after reconnecting. */
 export const PLAYER_ID = /^[A-Za-z0-9_-]{16,64}$/;
 
+/**
+ * Bumped whenever the messages below change shape. An app saved for offline use
+ * can be older than the server; the room turns such a client away so it updates.
+ */
+export const PROTOCOL_VERSION = 1;
+
 export type ClientMessage =
-	| { type: 'hello'; playerId: string }
+	| { type: 'hello'; playerId: string; v: number }
 	| { type: 'move'; move: number }
 	| { type: 'rematch' };
 
@@ -26,4 +32,4 @@ export interface RoomSnapshot {
 	round: number;
 }
 
-export type ServerMessage = RoomSnapshot;
+export type ServerMessage = RoomSnapshot | { type: 'outdated' };

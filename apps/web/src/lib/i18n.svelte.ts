@@ -47,9 +47,13 @@ const messages = {
 		youLose: 'Your friend wins!',
 		friendAway: 'Your friend is away. Waiting for them to come back…',
 		connecting: 'Connecting…',
-		reconnecting: 'Connection lost. Reconnecting…',
+		reconnecting: 'Can’t reach the game. Trying again…',
 		watching: 'This game already has two players, so you are watching.',
-		rematch: 'Rematch'
+		rematch: 'Rematch',
+		offline: 'You’re offline. Online games need a connection.',
+		outdated: 'This game needs the newest version of Asobo.',
+		updateReady: 'A new version is ready.',
+		reload: 'Reload'
 	},
 	ja: {
 		tagline: 'ふたりで、あそぼ。',
@@ -95,9 +99,13 @@ const messages = {
 		youLose: '友だちの勝ち！',
 		friendAway: '友だちが離れています。戻ってくるのを待っています…',
 		connecting: '接続中…',
-		reconnecting: '接続が切れました。再接続中…',
+		reconnecting: '接続できません。再接続中…',
 		watching: 'この対戦はすでに2人います。観戦中です。',
-		rematch: 'もう一回'
+		rematch: 'もう一回',
+		offline: 'オフラインです。オンライン対戦には接続が必要です。',
+		outdated: 'この対戦には最新版のAsoboが必要です。',
+		updateReady: '新しいバージョンがあります。',
+		reload: '更新する'
 	}
 } satisfies Record<Locale, Record<string, string>>;
 

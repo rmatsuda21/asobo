@@ -4,7 +4,7 @@
 	import { count, reversi, type ReversiState, type Seat } from '@asobo/games';
 	import { fill, i18n } from '#lib/i18n.svelte.ts';
 	import ReversiTable from '#lib/ReversiTable.svelte';
-	import { moveBetween, playMoveSounds, type LastMove } from '#lib/reversi-ui.ts';
+	import { buzz, moveBetween, playMoveSounds, type LastMove } from '#lib/reversi-ui.ts';
 	import { newRoomCode } from '#lib/room.svelte.ts';
 	import SoundButton from '#lib/SoundButton.svelte';
 
@@ -60,6 +60,7 @@
 	function play(square: number) {
 		const seat = game.turn;
 		if (seat === null || !legal.has(square)) return;
+		buzz();
 		const next = reversi.applyMove(game, seat, square);
 		last = moveBetween(game.board, next.board, square);
 		// If the turn did not change hands, the other player had no move.

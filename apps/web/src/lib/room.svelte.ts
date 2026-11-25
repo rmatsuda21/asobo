@@ -1,5 +1,10 @@
 import type { ReversiState, Seat } from '@asobo/games';
-import type { ClientMessage, RoomSnapshot } from '@asobo/server/protocol';
+import {
+	PROTOCOL_VERSION,
+	type ClientMessage,
+	type RoomSnapshot,
+	type ServerMessage
+} from '@asobo/server/protocol';
 import { moveBetween, type LastMove } from './reversi-ui.ts';
 
 const PLAYER_KEY = 'asobo:player';
@@ -39,7 +44,8 @@ export type MoveListener = (move: LastMove, after: ReversiState, by: Seat) => vo
 
 /** A live connection to one match. It reconnects by itself until `close()` is called. */
 export class RoomConnection {
-	status = $state<'connecting' | 'open' | 'reconnecting'>('connecting');
+	/** 'outdated' means the server refused this copy of the app; it stays closed until a reload. */
+	status = $state<'connecting' | 'open' | 'reconnecting' | 'outdated'>('connecting');
 	/** Null until the room has answered. */
 	snapshot = $state.raw<RoomSnapshot | null>(null);
 	/** The move that led to the current board, for animating it. */
@@ -97,19 +103,29 @@ export class RoomConnection {
 		this.#socket = socket;
 
 		socket.addEventListener('open', () => {
+			if (this.#closed) return;
 			this.#attempts = 0;
 			this.status = 'open';
-			this.#send({ type: 'hello', playerId: this.#id });
+			this.#send({ type: 'hello', playerId: this.#id, v: PROTOCOL_VERSION });
 		});
 
 		socket.addEventListener('message', (event) => {
-			let message: RoomSnapshot;
+			let message: ServerMessage;
 			try {
 				message = JSON.parse(String(event.data));
 			} catch {
 				return;
 			}
 			if (message?.type === 'state') this.#apply(message);
+			else if (message?.type === 'outdated') {
+				this.status = 'outdated';
+				this.close();
+				// Fetch the new version in the background so the reload prompt appears.
+				void navigator.serviceWorker
+					?.getRegistration()
+					.then((registration) => registration?.update())
+					.catch(() => {});
+			}
 		});
 
 		socket.addEventListener('close', () => {

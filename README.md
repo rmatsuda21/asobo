@@ -6,7 +6,7 @@ Asobo is a mobile-first web app. The first game is Reversi; more will follow.
 
 ## How it works
 
-- **App:** a SvelteKit single-page app, installable as a PWA, in English and Japanese.
+- **App:** a SvelteKit single-page app in English and Japanese. It installs to the home screen and opens offline: a service worker saves the app's code up front and each font piece the first time it is used. Pass-and-play works without a connection; online play needs one.
 - **Server:** one Cloudflare Worker serves the app. Each online match runs in its own room (a Durable Object), which relays moves between the two players over WebSockets and checks every move against the rules.
 - **Games:** every game is a set of pure functions (`setup`, `legalMoves`, `applyMove`, `result`), so the same code draws the board in the browser and referees on the server.
 

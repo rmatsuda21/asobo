@@ -5,6 +5,7 @@
 	import '../app.css';
 	import { i18n } from '#lib/i18n.svelte.ts';
 	import Logo from '#lib/Logo.svelte';
+	import UpdatePrompt from '#lib/UpdatePrompt.svelte';
 	import type { LayoutProps } from './$types';
 
 	let { children }: LayoutProps = $props();
@@ -26,6 +27,8 @@
 		{@render children()}
 	</main>
 </div>
+
+<UpdatePrompt />
 
 <style>
 	.shell {
