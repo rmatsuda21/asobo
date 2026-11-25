@@ -36,6 +36,8 @@
 	let last = $state.raw<LastMove<State, Move> | null>(null);
 	/** The player who just had to pass, until the next move. */
 	let passed = $state<Seat | null>(null);
+	/** The player who just earned another turn, until the next move. */
+	let bonus = $state<Seat | null>(null);
 	let confirmingReset = $state(false);
 
 	const names = $derived([i18n.t.cocoa, i18n.t.cream] as const);
@@ -52,6 +54,7 @@
 		}
 		if (turn === null) return '';
 		if (passed !== null) return fill(i18n.t.passed, { name: names[passed], other: names[turn] });
+		if (bonus !== null) return fill(i18n.t.goesAgain, { name: names[bonus] });
 		return fill(i18n.t.turnOf, { name: names[turn] });
 	});
 
@@ -67,8 +70,10 @@
 		buzz();
 		const nextTurn = ui.rules.turn(next);
 		const move_ = { before: game, move, by: seat };
-		// If the turn did not change hands, the other player had no move.
-		passed = nextTurn === seat ? (seat === 0 ? 1 : 0) : null;
+		// The same player moving again is either a pass by the other side or a bonus turn.
+		const again = nextTurn === seat;
+		passed = again && ui.repeatTurn === 'pass' ? (seat === 0 ? 1 : 0) : null;
+		bonus = again && ui.repeatTurn === 'bonus' ? seat : null;
 		confirmingReset = false;
 		last = move_;
 		game = next;
@@ -84,6 +89,7 @@
 		confirmingReset = false;
 		last = null;
 		passed = null;
+		bonus = null;
 		game = ui.rules.setup();
 		save(game);
 	}

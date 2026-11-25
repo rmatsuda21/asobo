@@ -35,6 +35,11 @@ export interface GameUI<State, Move> {
 	name: MessageKey;
 	blurb: MessageKey;
 	Table: Component<TableProps<State, Move>>;
+	/**
+	 * What it means when a player moves twice in a row. In some games the other
+	 * player had no move and passed; in others the mover earned a bonus turn.
+	 */
+	repeatTurn: 'pass' | 'bonus';
 	/** Checks a state loaded from storage, returning null if it isn't a valid one. */
 	restore(saved: unknown): State | null;
 	/** Plays the sounds for a move, timed to the board's animation. */

@@ -38,6 +38,7 @@ export const reversiUI: GameUI<ReversiState, ReversiMove> = {
 	name: 'reversi',
 	blurb: 'reversiBlurb',
 	Table: ReversiTable,
+	repeatTurn: 'pass',
 
 	restore(saved) {
 		if (typeof saved !== 'object' || saved === null) return null;

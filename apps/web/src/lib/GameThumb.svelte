@@ -5,20 +5,40 @@
 	let { id }: { id: GameId } = $props();
 
 	// x = cocoa, o = cream, . = empty.
-	const pictures: Record<GameId, { columns: number; cells: string }> = {
+	const pictures: Partial<Record<GameId, { columns: number; cells: string }>> = {
 		reversi: { columns: 4, cells: '.....ox..xxx....' },
 		four: { columns: 4, cells: '......x..xo.xoxo' }
 	};
 	const picture = $derived(pictures[id]);
 </script>
 
-<div class="thumb {id}" style:--columns={picture.columns} aria-hidden="true">
-	{#each picture.cells as cell, i (i)}
-		<span class="cell">
-			{#if cell !== '.'}<i class="stone {cell === 'x' ? 'cocoa' : 'cream'}"></i>{/if}
-		</span>
-	{/each}
-</div>
+{#if picture}
+	<div class="thumb {id}" style:--columns={picture.columns} aria-hidden="true">
+		{#each picture.cells as cell, i (i)}
+			<span class="cell">
+				{#if cell !== '.'}<i class="stone {cell === 'x' ? 'cocoa' : 'cream'}"></i>{/if}
+			</span>
+		{/each}
+	</div>
+{:else if id === 'dots'}
+	<!-- Dots and Boxes: a few drawn lines and one claimed box. -->
+	<div class="thumb dots" aria-hidden="true">
+		<svg viewBox="0 0 100 100">
+			<g class="track">
+				<path d="M14 14H86M14 50H86M14 86H86M14 14V86M50 14V86M86 14V86" />
+			</g>
+			<g class="drawn">
+				<path d="M14 14H50V50H14ZM50 50H86M50 50V86" />
+			</g>
+			{#each [14, 50, 86] as y (y)}
+				{#each [14, 50, 86] as x (x)}
+					<circle cx={x} cy={y} r="5.5" />
+				{/each}
+			{/each}
+		</svg>
+		<i class="stone cocoa"></i>
+	</div>
+{/if}
 
 <style>
 	.thumb {
@@ -54,5 +74,40 @@
 
 	.four .stone {
 		inline-size: 92%;
+	}
+
+	.dots {
+		position: relative;
+		display: block;
+		border-radius: 0.75rem;
+		background: var(--felt);
+		box-shadow: inset 0 -3px 0 var(--felt-shade);
+	}
+
+	.dots svg {
+		display: block;
+		fill: var(--cocoa);
+	}
+
+	.dots path {
+		fill: none;
+		stroke-width: 5;
+		stroke-linecap: round;
+		stroke-linejoin: round;
+	}
+
+	.dots .track path {
+		stroke: var(--felt-shade);
+	}
+
+	.dots .drawn path {
+		stroke: var(--cocoa);
+	}
+
+	.dots .stone {
+		position: absolute;
+		inset-inline-start: 19%;
+		inset-block-start: 19%;
+		inline-size: 26%;
 	}
 </style>

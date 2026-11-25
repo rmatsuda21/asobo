@@ -15,6 +15,7 @@ export const fourUI: GameUI<FourState, FourMove> = {
 	name: 'four',
 	blurb: 'fourBlurb',
 	Table: FourTable,
+	repeatTurn: 'pass',
 
 	restore(saved) {
 		if (typeof saved !== 'object' || saved === null) return null;

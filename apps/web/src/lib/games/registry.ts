@@ -1,4 +1,5 @@
 import type { GameId } from '@asobo/games';
+import { dotsUI } from './dots.ts';
 import { fourUI } from './four.ts';
 import { reversiUI } from './reversi.ts';
 import type { GameUI } from './types.ts';
@@ -10,7 +11,8 @@ import type { GameUI } from './types.ts';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const registry: Record<GameId, GameUI<any, any>> = {
 	reversi: reversiUI,
-	four: fourUI
+	four: fourUI,
+	dots: dotsUI
 };
 
 export const gameIds = Object.keys(registry) as GameId[];

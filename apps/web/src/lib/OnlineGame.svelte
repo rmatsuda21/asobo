@@ -14,6 +14,8 @@
 	let last = $state.raw<LastMove<State, Move> | null>(null);
 	/** The player who just had to pass, until the next move. */
 	let passed = $state<Seat | null>(null);
+	/** The player who just earned another turn, until the next move. */
+	let bonus = $state<Seat | null>(null);
 	let copied = $state(false);
 	let room = $state.raw<RoomConnection<State, Move> | null>(null);
 
@@ -21,8 +23,10 @@
 		const connection = new RoomConnection<State, Move>(id, code, (before, now) => {
 			const move = { before, move: now.last!.move, by: now.last!.seat };
 			const turn = ui.rules.turn(now.state);
-			// If the turn did not change hands, the other player had no move.
-			passed = turn === move.by ? (move.by === 0 ? 1 : 0) : null;
+			// The same player moving again is either a pass by the other side or a bonus turn.
+			const again = turn === move.by;
+			passed = again && ui.repeatTurn === 'pass' ? (move.by === 0 ? 1 : 0) : null;
+			bonus = again && ui.repeatTurn === 'bonus' ? move.by : null;
 			last = move;
 			ui.sounds(move, now.state, { finished: turn === null, passed: passed !== null });
 		});
@@ -46,6 +50,7 @@
 			round = snapshot.round;
 			last = null;
 			passed = null;
+			bonus = null;
 		}
 	});
 
@@ -86,6 +91,7 @@
 		if (seat === null) return i18n.t.watching;
 		if (friendJoined && !friendHere) return i18n.t.friendAway;
 		if (passed !== null) return passed === seat ? i18n.t.youPassed : i18n.t.friendPassed;
+		if (bonus !== null) return bonus === seat ? i18n.t.youGoAgain : i18n.t.friendGoesAgain;
 		return turn === seat ? i18n.t.yourTurn : i18n.t.friendsTurn;
 	});
 

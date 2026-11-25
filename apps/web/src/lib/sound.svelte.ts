@@ -78,6 +78,15 @@ export const sound = {
 		// A little confirmation when sound comes back on.
 		if (enabled) boop({ from: 880, to: 1320, length: 0.12, volume: 0.25 });
 	},
+	/** A line is drawn: a short, light tick. */
+	tick() {
+		boop({ from: 940, to: 700, length: 0.07, volume: 0.3 });
+	},
+	/** Something good happened, like claiming a box: two quick rising notes. */
+	chime(at = 0) {
+		boop({ from: 783.99, at, length: 0.1, volume: 0.3 });
+		boop({ from: 1046.5, at: at + 0.09, length: 0.16, volume: 0.3 });
+	},
 	/** A stone lands: a soft "pon" that drops in pitch. */
 	place(at = 0) {
 		boop({ from: 720, to: 300, at, length: 0.13, volume: 0.5 });
